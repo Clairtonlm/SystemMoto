@@ -1,0 +1,29 @@
+# Sistema de Gerenciamento de Manutenção de Motos
+
+## Requisitos
+
+### Tela de Login
+- Usuário: admin@admin.com
+- Senha: admin123
+
+### CRUD de Cliente
+- Dados do Cliente:
+    - Nome
+    - CPF
+    - Placa do Veículo
+    - Kilometragem
+- Pesquisa por Cliente ou Veículo
+- Cada cliente tem um ID único que associa seus serviços
+
+### Controle de Manutenção
+- Dados do Serviço:
+    - Tipo de Serviço
+    - Data
+    - Outros dados relevantes
+- Impressão e orçamento de serviço
+
+### Tecnologias Utilizadas
+- Bootstrap
+- JavaScript
+- Node.js
+- Banco de Dados (a definir)

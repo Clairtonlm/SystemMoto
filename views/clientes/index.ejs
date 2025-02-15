@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciamento de Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Gerenciamento de Clientes</h2>
+        
+        <!-- Busca -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome ou placa...">
+                    <button class="btn btn-primary" onclick="buscarClientes()">Buscar</button>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClienteModal">
+                    Novo Cliente
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabela de Clientes -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Placa</th>
+                        <th>Kilometragem</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="clientesTableBody">
+                    <% clientes.forEach(cliente => { %>
+                        <tr>
+                            <td><%= cliente.nome %></td>
+                            <td><%= cliente.cpf %></td>
+                            <td><%= cliente.placa_veiculo %></td>
+                            <td><%= cliente.kilometragem %></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editarCliente('<%= cliente.id %>')">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="excluirCliente('<%= cliente.id %>')">Excluir</button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar/Editar Cliente -->
+    <div class="modal fade" id="clienteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Novo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="clienteForm">
+                        <input type="hidden" id="clienteId">
+                        <div class="mb-3">
+                            <label class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">CPF</label>
+                            <input type="text" class="form-control" id="cpf" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Placa do Veículo</label>
+                            <input type="text" class="form-control" id="placa_veiculo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kilometragem</label>
+                            <input type="number" class="form-control" id="kilometragem" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarCliente()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Funções JavaScript para manipulação dos clientes
+        async function buscarClientes() {
+            const termo = document.getElementById('searchInput').value;
+            const response = await fetch(`/clientes/buscar?termo=${termo}`);
+            const clientes = await response.json();
+            atualizarTabelaClientes(clientes);
+        }
+
+        function atualizarTabelaClientes(clientes) {
+            const tbody = document.getElementById('clientesTableBody');
+            tbody.innerHTML = clientes.map(cliente => `
+                <tr>
+                    <td>${cliente.nome}</td>
+                    <td>${cliente.cpf}</td>
+                    <td>${cliente.placa_veiculo}</td>
+                    <td>${cliente.kilometragem}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editarCliente(${cliente.id})">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="excluirCliente(${cliente.id})">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function salvarCliente() {
+            const id = document.getElementById('clienteId').value;
+            const data = {
+                nome: document.getElementById('nome').value,
+                cpf: document.getElementById('cpf').value,
+                placa_veiculo: document.getElementById('placa_veiculo').value,
+                kilometragem: document.getElementById('kilometragem').value
+            };
+
+            const url = id ? `/clientes/${id}` : '/clientes';
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Erro ao salvar cliente:', error);
+            }
+        }
+
+        async function excluirCliente(id) {
+            if (confirm('Deseja realmente excluir este cliente?')) {
+                try {
+                    const response = await fetch(`/clientes/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Erro ao excluir cliente:', error);
+                }
+            }
+        }
+
+        function editarCliente(id) {
+            // Implementar lógica para carregar dados do cliente no modal
+        }
+    </script>
+</body>
+</html>
