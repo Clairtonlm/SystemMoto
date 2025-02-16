@@ -8,6 +8,12 @@ const clientesRoutes = require('./routes/clientes');
 
 const app = express();
 
+// Configurações de segurança
+app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline'; img-src 'self' https: data:;");
+    next();
+});
+
 // Configurações
 app.use(session({
     secret: 'motoSystem2024',
@@ -24,6 +30,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(ejsLayouts);
 app.set('layout', 'layouts/base');
+app.set("layout extractScripts", true);
+app.set("layout extractStyles", true);
 
 // Middleware para verificar autenticação
 const isAuthenticated = (req, res, next) => {

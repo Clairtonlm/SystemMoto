@@ -1,36 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const db = require('../config/database');
 
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const [users] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
-        
-        if (users.length === 0) {
-            return res.redirect('/?error=1');
-        }
-
-        const user = users[0];
-        const validPassword = await bcrypt.compare(password, user.senha);
-
-        if (!validPassword) {
-            return res.redirect('/?error=1');
-        }
-
+// Rota de login simplificada temporariamente
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    // Autenticação básica temporária
+    if (username === 'admin' && password === 'admin123') {
         req.session.loggedin = true;
-        req.session.userId = user.id;
+        req.session.username = username;
         res.redirect('/dashboard');
-    } catch (error) {
-        console.error(error);
-        res.redirect('/?error=2');
+    } else {
+        res.render('login', { 
+            error: '1',
+            layout: false 
+        });
     }
 });
 
 router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Erro ao fazer logout:', err);
+        }
+        res.redirect('/');
+    });
 });
 
 module.exports = router;

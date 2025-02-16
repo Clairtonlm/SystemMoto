@@ -1,0 +1,37 @@
+.sidebar {
+    min-height: 100vh;
+    background-color: #343a40;
+}
+
+.sidebar .nav-link {
+    color: #fff;
+    padding: 15px;
+    margin: 5px 0;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #495057;
+    border-radius: 5px;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+}
+
+.dashboard-card {
+    transition: transform 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.main-content {
+    padding: 20px;
+}
+
+.card-dashboard {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
