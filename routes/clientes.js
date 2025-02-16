@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 
-// Middleware para verificar se o usuário está logado
+// Middleware para verificar autenticação
 const isAuthenticated = (req, res, next) => {
     if (req.session.loggedin) {
         return next();
@@ -14,10 +14,18 @@ const isAuthenticated = (req, res, next) => {
 router.get('/clientes', isAuthenticated, async (req, res) => {
     try {
         const [clientes] = await db.query('SELECT * FROM clientes ORDER BY nome');
-        res.render('clientes/index', { clientes });
+        res.render('clientes/index', { 
+            clientes,
+            username: req.session.username,
+            error: null
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Erro ao listar clientes');
+        console.error('Erro ao listar clientes:', error);
+        res.render('clientes/index', { 
+            clientes: [],
+            error: 'Erro ao carregar clientes',
+            username: req.session.username
+        });
     }
 });
 
@@ -25,14 +33,23 @@ router.get('/clientes', isAuthenticated, async (req, res) => {
 router.post('/clientes', isAuthenticated, async (req, res) => {
     const { nome, cpf, placa_veiculo, kilometragem } = req.body;
     try {
-        await db.query(
+        console.log('Dados recebidos:', req.body); // Debug
+
+        const [result] = await db.query(
             'INSERT INTO clientes (nome, cpf, placa_veiculo, kilometragem) VALUES (?, ?, ?, ?)',
-            [nome, cpf, placa_veiculo, kilometragem]
+            [nome, cpf || null, placa_veiculo || null, kilometragem || 0]
         );
+
+        console.log('Cliente cadastrado:', result); // Debug
         res.redirect('/clientes');
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Erro ao cadastrar cliente');
+        console.error('Erro ao cadastrar cliente:', error);
+        const [clientes] = await db.query('SELECT * FROM clientes ORDER BY nome');
+        res.render('clientes/index', {
+            clientes,
+            error: 'Erro ao cadastrar cliente: ' + error.message,
+            username: req.session.username
+        });
     }
 });
 
