@@ -79,4 +79,8 @@ router.get('/clientes/buscar', isAuthenticated, async (req, res) => {
     }
 });
 
+router.get('/clientes', (req, res) => {
+    res.render('clientes');
+});
+
 module.exports = router;
